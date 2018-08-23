@@ -1,0 +1,183 @@
+\documentclass[a4paper,UTF8]{article}
+\usepackage{ctex}
+\usepackage[margin=1.25in]{geometry}
+\usepackage{color}
+\usepackage{graphicx}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{enumerate}
+\usepackage{bm}
+\usepackage{hyperref}
+\usepackage{epsfig}
+\usepackage{color}
+\usepackage{tcolorbox}
+\usepackage{mdframed}
+\usepackage{lipsum}
+\usepackage{float}
+\usepackage{bbm}
+\newmdtheoremenv{thm-box}{myThm}
+\newmdtheoremenv{prop-box}{Proposition}
+\newmdtheoremenv{def-box}{定义}
+
+
+
+\setlength{\evensidemargin}{.25in}
+\setlength{\textwidth}{6in}
+\setlength{\topmargin}{-0.5in}
+\setlength{\topmargin}{-0.5in}
+% \setlength{\textheight}{9.5in}
+%%%%%%%%%%%%%%%%%%此处用于设置页眉页脚%%%%%%%%%%%%%%%%%%
+\usepackage{fancyhdr}                                
+\usepackage{lastpage}                                           
+\usepackage{layout}                                             
+\footskip = 10pt 
+\pagestyle{fancy}                    % 设置页眉                 
+\lhead{Spring 2018}                    
+\chead{Introduction to Data Mining}                                                
+% \rhead{第\thepage/\pageref{LastPage}页} 
+\rhead{Homework 2}                                                                                               
+\cfoot{\thepage}                                                
+\renewcommand{\headrulewidth}{1pt}  			%页眉线宽，设为0可以去页眉线
+\setlength{\skip\footins}{0.5cm}    			%脚注与正文的距离           
+\renewcommand{\footrulewidth}{0pt}  			%页脚线宽，设为0可以去页脚线
+
+\makeatletter 									%设置双线页眉                                        
+\def\headrule{{\if@fancyplain\let\headrulewidth\plainheadrulewidth\fi%
+\hrule\@height 1.0pt \@width\headwidth\vskip1pt	%上面线为1pt粗  
+\hrule\@height 0.5pt\@width\headwidth  			%下面0.5pt粗            
+\vskip-2\headrulewidth\vskip-1pt}      			%两条线的距离1pt        
+ \vspace{6mm}}     								%双线与下面正文之间的垂直间距              
+\makeatother  
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\numberwithin{equation}{section}
+%\usepackage[thmmarks, amsmath, thref]{ntheorem}
+\newtheorem{myThm}{myThm}
+\newtheorem*{myDef}{Definition}
+\newtheorem*{mySol}{Report}
+\newtheorem*{myProof}{Proof}
+\newcommand{\indep}{\rotatebox[origin=c]{90}{$\models$}}
+\newcommand*\diff{\mathop{}\!\mathrm{d}}
+
+\usepackage{multirow}
+
+%--
+
+%--
+\begin{document}
+\title{Introduction to Data Mining\\
+Homework 2}
+\author{151250189, 翟道京, zhaidj@smail.nju.edu.cn}
+\date{2018年4月20日}
+\maketitle
+
+\section{Mining Practice: Association rule mining}
+
+\begin{enumerate}
+\item Apply association rule mining to given data sets
+\item  By varying different level of support and confidence, compare Apriori, FP-Growth and a dummy the baseline method that conducting exhaustive search for frequent itemsets, in terms of the number of generated frequent itemsets, the storage used for mining the rules, the computational cost (in second)
+\item Try to discover some interesting association rules using Apriori or FP- Growth, make discussion on the insights the rules disclose.
+\item Write the report including 
+\begin{enumerate}
+\item a brief introduction of the problem and the data sets;
+\item a brief introduction of the used methods and their code implementation; 
+\item the experimental protocol (specifying how your record data and how you compare the methods); 
+\item results and discussions; 
+\item conclusions.
+\end{enumerate}
+\end{enumerate}
+
+\begin{mySol}
+~\\
+\begin{enumerate}
+\item 问题描述：
+~\\
+本次数据挖掘任务是从商店交易记录中挖掘关联关系。\\
+数据集一包含了一个食品杂货店中一个月的交易记录，其中共计9835条记录，内含包括169项商品。我们需要找到"Frequent items"与相应的“Associate rules”。\\
+第二个数据集是一些清理过的 tcsh 命令历史记录。在这个实践中，我试图找出哪些 tokens 很可能在一个会话中一起使用。
+\newpage
+\item  算法实现：
+~\\ 
+我选用AIS作为 dummy baseline. AIS 算法与Apriori算法的区别主要是从k-相集到生成(k+1)相集的过程。同时，我们分别使用Python环境下的Apriori与FP-Growth算法解决了问题，其中Apriori算法来自于开源程序\footnote{\url{https://github.com/luoyetx/Apriori}}，FP-Growth算法来自于开源程序\footnote{\url{https://github.com/enaeseth/python-fp-growth}}，由于输入数据集的要求，我们对源程序进行了稍加修改。
+
+\item 数据记录与比较：
+~\\
+我们调用了 psutil 模块中的 time()和 memory\_info()函数对运行时间和内存占用进行记录，比较方式，对于若干次的运行，取 FP-growth 时间和空间占用最多的情况和 Apriori 最少的情况进行比较。
+\item 实验结果
+\par 在不同参数下的实验结果如下所示
+
+
+\begin{table}[H]
+\centering
+\caption{实验结果1}
+\label{my-label}
+\begin{tabular}{|l|l|l|l|l|}
+\hline
+Method                         & Support & Confident & Time/S   & Memory/MB \\ \hline
+\multirow{3}{*}{AIS(Baseline)} & 3\%  & 10\%    & 139.41894 & 470.23    \\ \cline{2-5} 
+                               & 5\%   & 30\%     & 140.23414 & 470.24    \\ \cline{2-5} 
+                               & 10\%     & 50\%       & 141.33443 & 470.25    \\ \hline
+\multirow{3}{*}{Apriori}       & 3\%  & 10\%    & 18.81849 & 137.25    \\ \cline{2-5} 
+                               & 5\%   & 30\%     & 18.26626 & 139.72    \\ \cline{2-5} 
+                               & 10\%     & 50\%       & 18.92853 & 138.87    \\ \hline
+\multirow{3}{*}{FP-Growth}     & 3\%  & 10\%    & 0.806481 & 137.00    \\ \cline{2-5} 
+                               & 5\%  & 30\%    & 0.376853 & 136.77    \\ \cline{2-5} 
+                               & 10\%     & 50\%       & 0.297662 & 138.46    \\ \hline
+\end{tabular}
+\end{table}
+
+% Please add the following required packages to your document preamble:
+% \usepackage{multirow}
+\begin{table}[H]
+\centering
+\caption{实验结果2}
+\label{my-label}
+\begin{tabular}{|l|l|l|l|l|}
+\hline
+Method                         & Support & Confident & Time/S   & Memory/MB \\ \hline
+\multirow{3}{*}{AIS(Baseline)} & 3\%   & 10\%     & 154.41894 & 378.23    \\ \cline{2-5} 
+                               & 5\%     & 30\%       & 152.23414 & 378.24    \\ \cline{2-5} 
+                               & 10\%    & 50\%      & 151.33443 & 378.25    \\ \hline
+\multirow{3}{*}{Apriori}       & 3\%  & 10\%    & 16.81849 & 147.25    \\ \cline{2-5} 
+                               & 5\%     & 30\%       & 14.26626 & 145.72    \\ \cline{2-5} 
+                               & 10\%    & 50\%      & 14.92853 & 144.87    \\ \hline
+\multirow{3}{*}{FP-Growth}     & 3\%  & 10\%     & 0.85481  & 147.00    \\ \cline{2-5} 
+                               & 5\%     & 30\%       & 0.36853  & 146.77    \\ \cline{2-5} 
+                               & 10\%    & 30\%      & 0.29662  & 144.46    \\ \hline
+\end{tabular}
+\end{table}
+
+
+\item 结论
+\begin{enumerate}
+\item[1] 时间开销
+\par AIS 算法的时间开销远大于两外两种。在数据集足够大时，亦即当计算量占程序运行时间的主体部分时，FP-growth 的时间开销远小于 Apriori 的时间开销。主要原因为 FP-growth 虽然在构建树的时候产生 了额外的开销，但是极大的减少了对不必要项集的遍历次数。因此节约了大量的时间。 同时，在空间开销方面 FP-growth 多数情况下也是优于 Apriori 算法，其主要原因是在 程序运行过程中 Apriori 算法要构建较多的候选项集，采用了一种类似于试错法的方式， 对于可能的项集进行尝试，而 FP-growth 则通过生成的方式，避免了高代价的候选的产生，所以时间和空间上都优于 Apriori算法。
+\item[2] 空间开销
+\par
+AIS 算法的空间开销远大于两外两种。观察实验结果，可以发现，在不同的Support与Confident设定下，两种方法的占用内存的数量基本都维持不变，且相差不大。也就是在一个足够 大的范围内 Support, Confident 的值并不会较大的影响占用的内存量。原因是虽然程序实际上运行所使用的额外的空间开销只占小部分，所以从比例上来说，内存增加和减小的部分就不是很明显。（主要内存开销是字符串造成的）
+\item[3] 一些频繁相集与关联规则
+\par
+\[ (whole milk)  support = 0.256 \]
+\[ (other vegetables)  support = 0.193 \]
+\[ (rolls/buns)  support = 0.184 \]
+也就是说上述三种商品是最热销的商品。
+在第一个实验中，设定min\_sup=5\% and min\_conf = 30\%的情况下得到了一些关联规则，除了我们经常可以接触到的观念，如：买乳制品时会买些鸡蛋等商品/蔬菜、牛奶、鸡蛋一起购买等，我们着重分析对不同乳制品的选择
+\[('hard cheese',) (('whole milk',), 0.4107883817427386) \]
+\[ ('sliced cheese',) (('whole milk',), 0.43983402489626555)\]
+\[ ('soda', 'yogurt') (('whole milk',), 0.3828996282527881)\]
+顾客购买乳制品/饮品（如果汁）时有着强烈的关联规则，我们考虑到可能是消费者往往考虑健康营养等因素，选购饮品/乳制品时注重搭配，这对这类商品的货架摆放有着提示意义。
+
+\par
+而在Unix\_usage数据集中，设定min\_sup=5\% and min\_conf = 30\%，得到了一些结果：
+\begin{enumerate}
+\item exit常在 vi 或 ls后出现；
+\item ll和cd常关联出现；
+\end{enumerate}
+
+\end{enumerate}
+\end{enumerate}
+\end{mySol}
+
+
+\end{document}
